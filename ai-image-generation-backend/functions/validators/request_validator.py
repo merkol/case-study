@@ -42,7 +42,6 @@ class RequestValidator:
             # Special handling for string fields that shouldn't be empty
             if field in ["userId", "prompt"] and isinstance(data[field], str):
                 if not data[field].strip():
-                    # Use proper capitalization for userId
                     field_name = "userId" if field == "userId" else field.capitalize()
                     return {"valid": False, "error": f"{field_name} cannot be empty"}
 

@@ -6,7 +6,6 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from services.credit_service import CreditService
-from models.transaction import TransactionType
 
 
 class TestCreditService:
@@ -115,7 +114,7 @@ class TestCreditService:
             mock_transactional.side_effect = lambda func: func
 
             # Test
-            result = credit_service.refund_credits("user123", 10, "req123")
+            _ = credit_service.refund_credits("user123", 10, "req123")
 
             assert mock_db.transaction.called
 

@@ -67,3 +67,17 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Python artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+venv/
+
+# Firebase Functions (Python)
+functions/__pycache__/
+functions/.pytest_cache/
+functions/.coverage
+functions/venv/
+functions/firestore-debug.log
