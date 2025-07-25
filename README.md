@@ -300,8 +300,8 @@ The test suite covers:
 # Start emulator with test data
 firebase emulators:start --import=./emulator-data
 
-# In another terminal, run integration tests
-python -m pytest tests/integration/
+# In another terminal, run tests
+python -m pytest
 ```
 
 ## 🚀 Deployment
@@ -370,19 +370,3 @@ Weekly reports include:
 - Breakdown by model, style, size, and color
 - Anomaly detection for unusual usage patterns
 - Performance metrics
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## 📞 Support
-
-For questions or issues, please contact: basak@feraset.co
-
-## 📄 License
-
-This project is proprietary and confidential.
