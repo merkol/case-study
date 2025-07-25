@@ -1,0 +1,160 @@
+"""
+Generation Service - Simulates AI image generation with configurable failure rates
+"""
+
+import logging
+import random
+import time
+from typing import Optional
+from firebase_admin import firestore
+
+logger = logging.getLogger(__name__)
+
+
+class GenerationService:
+    """Service for simulating AI image generation"""
+    
+    # Configurable failure rates
+    MODEL_A_FAILURE_RATE = 0.05  # 5% failure rate
+    MODEL_B_FAILURE_RATE = 0.05  # 5% failure rate
+    
+    # Placeholder image URLs for each model
+    MODEL_A_BASE_URL = "https://placeholder-model-a.com/image"
+    MODEL_B_BASE_URL = "https://placeholder-model-b.com/image"
+    
+    def __init__(self, db: firestore.Client):
+        self.db = db
+        self.requests_collection = db.collection("generation_requests")
+    
+    def generate_image(
+        self,
+        request_id: str,
+        model: str,
+        style: str,
+        color: str,
+        size: str,
+        prompt: str
+    ) -> str:
+        """
+        Simulate AI image generation with configurable failure
+        
+        Args:
+            request_id: Generation request ID
+            model: AI model to use (Model A or Model B)
+            style: Image style
+            color: Color scheme
+            size: Image dimensions
+            prompt: Generation prompt
+            
+        Returns:
+            Generated image URL
+            
+        Raises:
+            Exception: If generation fails
+        """
+        try:
+            # Simulate processing time (0.5 to 2 seconds)
+            processing_time = random.uniform(0.5, 2.0)
+            time.sleep(processing_time)
+            
+            # Determine failure rate based on model
+            failure_rate = (
+                self.MODEL_A_FAILURE_RATE if model == "Model A"
+                else self.MODEL_B_FAILURE_RATE
+            )
+            
+            # Simulate random failure
+            if random.random() < failure_rate:
+                error_messages = [
+                    "AI model temporarily unavailable",
+                    "Generation timeout",
+                    "Invalid prompt processing",
+                    "Resource allocation failed",
+                    "Model inference error"
+                ]
+                error_msg = random.choice(error_messages)
+                logger.error(f"Simulated generation failure: {error_msg}")
+                raise Exception(error_msg)
+            
+            # Generate unique image URL based on model
+            timestamp = int(time.time() * 1000)
+            unique_id = f"{request_id}_{timestamp}"
+            
+            if model == "Model A":
+                image_url = f"{self.MODEL_A_BASE_URL}_{unique_id}.jpg"
+            else:  # Model B
+                image_url = f"{self.MODEL_B_BASE_URL}_{unique_id}.jpg"
+            
+            # Log successful generation
+            logger.info(
+                f"Successfully generated image for request {request_id} "
+                f"using {model} with style={style}, color={color}, size={size}"
+            )
+            
+            return image_url
+            
+        except Exception as e:
+            logger.error(f"Error in generate_image: {str(e)}")
+            raise
+    
+    def validate_generation_parameters(
+        self,
+        model: str,
+        style: str,
+        color: str,
+        size: str
+    ) -> tuple[bool, Optional[str]]:
+        """
+        Validate generation parameters before processing
+        
+        Args:
+            model: AI model name
+            style: Image style
+            color: Color scheme
+            size: Image dimensions
+            
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        # Valid options
+        valid_models = ["Model A", "Model B"]
+        valid_styles = ["realistic", "anime", "oil painting", "sketch", "cyberpunk", "watercolor"]
+        valid_colors = ["vibrant", "monochrome", "pastel", "neon", "vintage"]
+        valid_sizes = ["512x512", "1024x1024", "1024x1792"]
+        
+        # Validate model
+        if model not in valid_models:
+            return False, f"Invalid model. Must be one of: {', '.join(valid_models)}"
+        
+        # Validate style
+        if style not in valid_styles:
+            return False, f"Invalid style. Must be one of: {', '.join(valid_styles)}"
+        
+        # Validate color
+        if color not in valid_colors:
+            return False, f"Invalid color. Must be one of: {', '.join(valid_colors)}"
+        
+        # Validate size
+        if size not in valid_sizes:
+            return False, f"Invalid size. Must be one of: {', '.join(valid_sizes)}"
+        
+        return True, None
+    
+    def get_generation_status(self, request_id: str) -> Optional[dict]:
+        """
+        Get the status of a generation request
+        
+        Args:
+            request_id: Generation request ID
+            
+        Returns:
+            Request status dictionary or None if not found
+        """
+        try:
+            doc = self.requests_collection.document(request_id).get()
+            if doc.exists:
+                return doc.to_dict()
+            return None
+        except Exception as e:
+            logger.error(f"Error getting generation status: {str(e)}")
+            return None

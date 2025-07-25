@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can only read their own data
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if true; // Allow writes for development/testing
+    }
+    
+    // Users can read their own generation requests
+    match /generation_requests/{requestId} {
+      allow read: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow write: if true; // Allow writes for development/testing
+    }
+    
+    // Users can read their own credit transactions
+    match /credit_transactions/{transactionId} {
+      allow read: if request.auth != null && 
+        request.auth.uid == resource.data.userId;
+      allow write: if true; // Allow writes for development/testing
+    }
+    
+    // Weekly reports are admin-only
+    match /weekly_reports/{reportId} {
+      allow read: if false;
+      allow write: if true; // Allow writes for development/testing
+    }
+    
+    // Configuration collections - allow all access for development/testing
+    match /colors/{colorId} {
+      allow read, write, create, update, delete: if true; // Allow all operations for development/testing
+    }
+    
+    match /styles/{styleId} {
+      allow read, write, create, update, delete: if true; // Allow all operations for development/testing
+    }
+    
+    match /sizes/{sizeId} {
+      allow read, write, create, update, delete: if true; // Allow all operations for development/testing
+    }
+  }
+}

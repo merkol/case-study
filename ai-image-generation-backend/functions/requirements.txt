@@ -1,0 +1,17 @@
+# Firebase Functions and Admin SDK
+firebase-functions==0.1.2
+firebase-admin==6.1.0
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+
+# Additional dependencies
+google-cloud-firestore==2.11.1
+google-cloud-logging==3.5.0
+
+# Development dependencies
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1

@@ -1,0 +1,39 @@
+{
+  "functions": [
+    {
+      "source": "functions",
+      "runtime": "python313",
+      "ignore": [
+        "venv",
+        ".git",
+        "*.log",
+        "__pycache__",
+        ".pytest_cache",
+        "*.pyc",
+        ".coverage"
+      ],
+      "codebase": "default"
+    }
+  ],
+  "firestore": {
+    "database": "(default)",
+    "location": "eur3",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080,
+      "rules": "firestore.rules"
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+
+  }
+}
