@@ -3,7 +3,7 @@ tests/test_credit_service.py - Tests for credit service
 """
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from services.credit_service import CreditService
 from models.transaction import TransactionType
@@ -117,8 +117,6 @@ class TestCreditService:
             # Test
             result = credit_service.refund_credits("user123", 10, "req123")
 
-            # Since we're mocking the transactional decorator,
-            # we just verify the method was called
             assert mock_db.transaction.called
 
     def test_get_transaction_history(self, credit_service, mock_db):
@@ -164,3 +162,122 @@ class TestCreditService:
         assert len(transactions) == 2
         assert transactions[0]["transactionId"] == "trans1"
         assert transactions[1]["transactionId"] == "trans2"
+
+    def test_create_user_with_credits_success(self, credit_service, mock_db):
+        """Test successful user creation with credits"""
+        # Mock document references
+        mock_user_ref = Mock()
+        mock_transaction_ref = Mock()
+        mock_transaction_ref.id = "trans123"
+
+        mock_db.collection.return_value.document.side_effect = [
+            mock_user_ref,  # users collection
+            mock_transaction_ref,  # transactions collection
+            mock_transaction_ref,  # transactions collection for set
+        ]
+
+        # Test
+        result = credit_service.create_user_with_credits(
+            "user123", 50, "test@example.com"
+        )
+
+        assert result is True
+        mock_user_ref.set.assert_called_once()
+
+    def test_create_user_with_credits_default_amount(self, credit_service, mock_db):
+        """Test user creation with default credit amount"""
+        # Mock document references
+        mock_user_ref = Mock()
+        mock_transaction_ref = Mock()
+        mock_transaction_ref.id = "trans123"
+
+        mock_db.collection.return_value.document.side_effect = [
+            mock_user_ref,
+            mock_transaction_ref,
+            mock_transaction_ref,
+        ]
+
+        # Test with default credits (should be 50)
+        result = credit_service.create_user_with_credits("user123")
+
+        assert result is True
+
+    def test_get_user_credits_error_handling(self, credit_service, mock_db):
+        """Test error handling in get_user_credits"""
+        # Mock database error
+        mock_db.collection.return_value.document.return_value.get.side_effect = (
+            Exception("DB error")
+        )
+
+        # Should return 0 on error
+        credits = credit_service.get_user_credits("user123")
+        assert credits == 0
+
+    def test_deduct_credits_user_not_found(self, credit_service, mock_db):
+        """Test deduct_credits when user doesn't exist"""
+        # Mock transaction and non-existent user
+        mock_transaction = Mock()
+        mock_user_doc = Mock()
+        mock_user_doc.exists = False
+
+        mock_transaction.get.return_value = mock_user_doc
+
+        mock_user_ref = Mock()
+        mock_db.collection.return_value.document.return_value = mock_user_ref
+
+        # Test
+        result = credit_service.deduct_credits(
+            mock_transaction, "user123", 10, "req123"
+        )
+
+        assert result is False
+
+    def test_deduct_credits_error_handling(self, credit_service, mock_db):
+        """Test error handling in deduct_credits"""
+        # Mock transaction that raises exception
+        mock_transaction = Mock()
+        mock_transaction.get.side_effect = Exception("Transaction error")
+
+        mock_user_ref = Mock()
+        mock_db.collection.return_value.document.return_value = mock_user_ref
+
+        # Test
+        result = credit_service.deduct_credits(
+            mock_transaction, "user123", 10, "req123"
+        )
+
+        assert result is False
+
+    def test_refund_credits_error_handling(self, credit_service, mock_db):
+        """Test error handling in refund_credits"""
+        # Mock database error
+        mock_db.transaction.side_effect = Exception("Transaction error")
+
+        # Test
+        result = credit_service.refund_credits("user123", 10, "req123")
+
+        assert result is False
+
+    def test_get_transaction_history_error_handling(self, credit_service, mock_db):
+        """Test error handling in get_transaction_history"""
+        # Mock the transactions_collection to raise an error
+        mock_transactions_collection = Mock()
+        mock_transactions_collection.where.side_effect = Exception("Query error")
+        credit_service.transactions_collection = mock_transactions_collection
+
+        # Test
+        transactions = credit_service.get_transaction_history("user123")
+
+        assert transactions == []
+
+    def test_create_user_with_credits_error_handling(self, credit_service, mock_db):
+        """Test error handling in create_user_with_credits"""
+        # Mock database error
+        mock_db.collection.return_value.document.return_value.set.side_effect = (
+            Exception("DB error")
+        )
+
+        # Test
+        result = credit_service.create_user_with_credits("user123", 50)
+
+        assert result is False
