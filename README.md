@@ -95,7 +95,6 @@ ai-image-generation-backend/
 │   │   └── report_service.py   # Weekly reporting logic
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── user.py            # User model
 │   │   ├── request.py         # Generation request model
 │   │   └── transaction.py     # Credit transaction model
 │   ├── validators/
@@ -103,6 +102,7 @@ ai-image-generation-backend/
 │   │   └── request_validator.py # Input validation
 │   └── tests/
 │       ├── test_credit_service.py
+│       ├── test_report_service.py
 │       ├── test_generation_service.py
 │       └── test_validators.py
 ├── emulator-data/              # Initial data for Firebase emulator
@@ -304,47 +304,8 @@ firebase emulators:start --import=./emulator-data
 python -m pytest
 ```
 
-## 🚀 Deployment
-
-### Deploy to Firebase
-
-1. **Configure Firebase project**
-   ```bash
-   firebase use --add
-   # Select your project
-   ```
-
-2. **Deploy functions**
-   ```bash
-   firebase deploy --only functions
-   ```
-
-3. **Set up Cloud Scheduler for weekly reports**
-   ```bash
-   gcloud scheduler jobs create http weekly-report \
-     --schedule="0 0 * * 1" \
-     --uri="https://YOUR_REGION-YOUR_PROJECT.cloudfunctions.net/scheduleWeeklyReport" \
-     --http-method=GET
-   ```
-
-### Environment Variables
-
-Set these in Firebase:
-```bash
-firebase functions:config:set \
-  ai.model_a_failure_rate="0.05" \
-  ai.model_b_failure_rate="0.05"
-```
 
 ## 🔧 Configuration
-
-### AI Model Failure Rates
-
-Configure in `functions/config.py`:
-```python
-MODEL_A_FAILURE_RATE = 0.05  # 5% failure rate
-MODEL_B_FAILURE_RATE = 0.05  # 5% failure rate
-```
 
 ### Credit Costs
 

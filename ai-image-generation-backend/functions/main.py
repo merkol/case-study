@@ -289,7 +289,7 @@ def scheduleWeeklyReport(event: scheduler_fn.ScheduledEvent) -> None:
         logger.info(f"Weekly report generated successfully: {report_id}")
 
         # Return success (for monitoring)
-        return {"reportStatus": "success", "reportId": report_id}
+        return {"reportStatus": "success"}
 
     except Exception as e:
         logger.error(f"Error generating weekly report: {str(e)}")
