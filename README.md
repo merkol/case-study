@@ -89,16 +89,13 @@ ai-image-generation-backend/
 │   ├── main.py                 # Main entry point for Cloud Functions
 │   ├── requirements.txt        # Python dependencies
 │   ├── services/
-│   │   ├── __init__.py
 │   │   ├── credit_service.py   # Credit management logic
 │   │   ├── generation_service.py # Image generation simulation
 │   │   └── report_service.py   # Weekly reporting logic
 │   ├── models/
-│   │   ├── __init__.py
 │   │   ├── request.py         # Generation request model
 │   │   └── transaction.py     # Credit transaction model
 │   ├── validators/
-│   │   ├── __init__.py
 │   │   └── request_validator.py # Input validation
 │   └── tests/
 │       ├── test_credit_service.py
